@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Osiris Smart TV Library Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .demo-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 2px solid #007acc;
+            border-radius: 8px;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #007acc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .button:hover {
+            background-color: #005c99;
+        }
+        .key-display {
+            font-family: monospace;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            min-height: 100px;
+            margin: 10px 0;
+        }
+        .platform-info {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Osiris Smart TV Library Demo</h1>
+        <p>This demo shows the capabilities of the Smart TV library for detecting platforms and handling remote control input.</p>
+
+        <div class="platform-info">
+            <h2>📱 Platform Detection</h2>
+            <div id="platform-info">Loading platform information...</div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎯 Remote Control Demo</h2>
+            <p>Press any key on your keyboard or remote control to see the events:</p>
+            
+            <button id="start-listening" class="button">Start Listening</button>
+            <button id="stop-listening" class="button">Stop Listening</button>
+            <span id="status">Status: Not listening</span>
+            
+            <h3>Recent Key Presses:</h3>
+            <div id="key-display" class="key-display">
+                Press any key to see events here...
+            </div>
+            
+            <h3>Try these keys:</h3>
+            <ul>
+                <li>Arrow keys (Up/Down/Left/Right)</li>
+                <li>Enter key</li>
+                <li>Escape key (Back)</li>
+                <li>Space bar (Play/Pause)</li>
+                <li>F1-F4 (Colored buttons)</li>
+            </ul>
+        </div>
+
+        <div class="demo-section">
+            <h2>📋 Supported Platforms</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin: 15px 0;">
+                <div>✅ Samsung Tizen</div>
+                <div>✅ LG webOS</div>
+                <div>✅ Sony Smart TV</div>
+                <div>✅ Toshiba Smart TV</div>
+                <div>✅ Hisense Smart TV</div>
+                <div>✅ TiVo</div>
+                <div>✅ VideoFutur</div>
+                <div>✅ Android TV</div>
+                <div>✅ Roku TV</div>
+                <div>✅ Amazon Fire TV</div>
+                <div>✅ Google Chromecast</div>
+                <div>✅ Web Browser</div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📋 Library Features</h2>
+            <ul>
+                <li>✅ Cross-platform Smart TV support</li>
+                <li>✅ React components and hooks</li>
+                <li>✅ Remote control input handling</li>
+                <li>✅ Platform detection and capabilities</li>
+                <li>✅ TypeScript support</li>
+                <li>✅ Multiple output formats (ESM/CJS)</li>
+                <li>✅ Enhanced device detection with DeviceUtil</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        // Simple demo without React for testing the built library
+        import { detectPlatform, getPlatformConfig, mapKeyboardToRemote } from './dist/index.js';
+
+        let isListening = false;
+        let keyPresses = [];
+
+        // Update platform info
+        function updatePlatformInfo() {
+            const platform = detectPlatform();
+            const config = getPlatformConfig(platform);
+            
+            const platformInfoDiv = document.getElementById('platform-info');
+            platformInfoDiv.innerHTML = `
+                <p><strong>Platform:</strong> ${platform}</p>
+                <p><strong>User Agent:</strong> ${navigator.userAgent}</p>
+                <p><strong>Capabilities:</strong></p>
+                <ul>
+                    ${Object.entries(config.capabilities || {}).map(([key, value]) => 
+                        `<li>${key}: ${value ? '✅ Supported' : '❌ Not supported'}</li>`
+                    ).join('')}
+                </ul>
+            `;
+        }
+
+        // Handle key events
+        function handleKeyEvent(event) {
+            if (!isListening) return;
+
+            const remoteKey = mapKeyboardToRemote(event.key);
+            const keyInfo = `${event.key} → ${remoteKey || 'unmapped'} (${event.type})`;
+            
+            keyPresses.unshift(keyInfo);
+            if (keyPresses.length > 10) {
+                keyPresses = keyPresses.slice(0, 10);
+            }
+            
+            document.getElementById('key-display').innerHTML = 
+                keyPresses.length > 0 ? keyPresses.join('<br>') : 'Press any key to see events here...';
+        }
+
+        // Start/stop listening
+        function startListening() {
+            if (!isListening) {
+                document.addEventListener('keydown', handleKeyEvent);
+                document.addEventListener('keyup', handleKeyEvent);
+                isListening = true;
+                document.getElementById('status').textContent = 'Status: 🟢 Listening';
+                document.getElementById('start-listening').disabled = true;
+                document.getElementById('stop-listening').disabled = false;
+            }
+        }
+
+        function stopListening() {
+            if (isListening) {
+                document.removeEventListener('keydown', handleKeyEvent);
+                document.removeEventListener('keyup', handleKeyEvent);
+                isListening = false;
+                document.getElementById('status').textContent = 'Status: 🔴 Not listening';
+                document.getElementById('start-listening').disabled = false;
+                document.getElementById('stop-listening').disabled = true;
+            }
+        }
+
+        // Initialize
+        updatePlatformInfo();
+        
+        document.getElementById('start-listening').addEventListener('click', startListening);
+        document.getElementById('stop-listening').addEventListener('click', stopListening);
+        
+        // Auto-start listening
+        startListening();
+    </script>
+</body>
+</html>
