@@ -366,3 +366,7 @@ MIT
 ## Support
 
 For support and questions, please open an issue on GitHub.
+
+<a href="https://www.buymeacoffee.com/tconns94" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" width="200"/>
+</a>
